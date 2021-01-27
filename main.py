@@ -1,8 +1,14 @@
 import RPi.GPIO as GPIO
+import os
 from datetime import datetime
 import time
 from csv import reader
 from inputimeout import inputimeout, TimeoutOccurred
+
+dirname = os.path.dirname(__file__)
+ean_csv_file_path = os.path.join(dirname, 'ean_list.csv')
+validated_products_csv_path = os.path.join(dirname, 'validated_products.csv')
+
 
 def list_from_csv(path, col_nr):
     # returns a list of integers from the nth column (starting from 0) of a csv file
@@ -11,7 +17,7 @@ def list_from_csv(path, col_nr):
         return [int(x[col_nr]) for x in csv_reader]
 
 # load list of valid ean labels
-ean_numbers = list_from_csv('ean_list.csv', 0)
+ean_numbers = list_from_csv(ean_csv_file_path, 0)
 
 
 def setup():
@@ -75,7 +81,7 @@ def read_barcode(a=0):
 def write_to_file(code_39, ean_13):
     timestamp = datetime.now(tz=None)
     new_line = '{},{},{}'.format(timestamp, code_39, ean_13)
-    with open('barcode_log', 'a+') as fi:
+    with open(validated_products_csv_path, 'a+') as fi:
         # Move read cursor to the start of the file
         fi.seek(0)
         # If file is not empty then append '\n'
