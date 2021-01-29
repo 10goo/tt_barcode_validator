@@ -1,0 +1,13 @@
+[Unit]
+Description=Barcode Validator
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/home/pi/tt_barcode_validator
+User=pi
+Type=simple
+ExecStart=/home/pi/tt_barcode_validator/venv/bin/python /home/pi/tt_barcode_validator/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
