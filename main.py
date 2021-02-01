@@ -14,7 +14,7 @@ validated_products_csv_path = os.path.join(dirname, 'validated_products.csv')
 
 @timeout(3)
 def read_barcode():
-    dev = InputDevice('/dev/input/event4')
+    dev = InputDevice('/dev/input/event0')
     x = ''
 
     scancodes = {2: u'1', 3: u'2', 4: u'3', 5: u'4', 6: u'5', 7: u'6', 8: u'7', 9: u'8',
