@@ -1,5 +1,5 @@
 #!/home/pi/tt_barcode_validator/venv/bin/python
-
+import requests
 import RPi.GPIO as GPIO
 import os
 from datetime import datetime
@@ -11,6 +11,30 @@ from timeout import timeout, TimeoutError
 dirname = os.path.dirname(__file__)
 ean_csv_file_path = os.path.join(dirname, 'ean_list.csv')
 validated_products_csv_path = os.path.join(dirname, 'validated_products.csv')
+
+# Send api request to insert new validated barcodes
+def api_insert(ean=0, code_39=0):
+    url = 'http://192.168.2.13:8080/v1/graphql'
+    query = """mutation insert_barcode{{
+      insert_barcodes(
+        objects: [
+          {{
+            ean: {}, 
+            code_39: {}
+          }}
+    ]
+    ) {{
+        returning {{
+          id,
+          ean,
+          code_39,
+          created_at
+    }}
+    }}
+    }}""".format(ean, code_39)
+    print(query)
+    r = requests.post(url, json={'query': query})
+    print(r.text)
 
 @timeout(3)
 def read_barcode():
@@ -96,12 +120,15 @@ def read_barcodes(a=0):
         set_relays_to_error()
         return False
     # If correct reading does happen in 2 seconds
-    print('Success')
-    # write barcodes and timestamp to file
-    write_to_file(read_code_39, read_ean_13)
+    if validate_ean13: # and validate_code_39:
+        print('Success')
+        # write barcodes and timestamp to file
+        write_to_file(read_code_39, read_ean_13)
+        # Send request to API
+        api_insert(read_ean_13, read_code_39)    
    
     
-def write_to_file(code_39, ean_13):
+def write_to_file(code_39=0, ean_13=0):
     timestamp = datetime.now(tz=None)
     new_line = '{},{},{}'.format(timestamp, code_39, ean_13)
     with open(validated_products_csv_path, 'a+') as fi:
