@@ -14,7 +14,8 @@ validated_products_csv_path = os.path.join(dirname, 'validated_products.csv')
 
 # Send api request to insert new validated barcodes
 def api_insert(ean=0, code_39=0):
-    url = 'http://192.168.2.13:8080/v1/graphql'
+    #url = 'http://192.168.2.13:8080/v1/graphql'
+    url = 'http://192.168.0.1:8080/v1/graphql'
     query = """mutation insert_barcode{{
       insert_barcodes(
         objects: [
