@@ -14,7 +14,6 @@ validated_products_csv_path = os.path.join(dirname, 'validated_products.csv')
 
 # Send api request to insert new validated barcodes
 def api_insert(ean=0, code_39=0):
-    #url = 'http://192.168.2.13:8080/v1/graphql'
     url = 'http://192.168.0.1:8080/v1/graphql'
     query = """mutation insert_barcode{{
       insert_barcodes(
@@ -37,7 +36,7 @@ def api_insert(ean=0, code_39=0):
     r = requests.post(url, json={'query': query})
     print(r.text)
 
-@timeout(3)
+@timeout(1.8)
 def read_barcode():
     dev = InputDevice('/dev/input/event0')
     x = ''
@@ -121,7 +120,7 @@ def read_barcodes(a=0):
         set_relays_to_error()
         return False
     # If correct reading does happen in 2 seconds
-    if validate_ean13: # and validate_code_39:
+    if validate_ean13 and validate_code39:
         print('Success')
         # write barcodes and timestamp to file
         write_to_file(read_code_39, read_ean_13)
@@ -149,6 +148,7 @@ def loop():
         if GPIO.input(1) == 0:
             print("triggered")
             read_barcodes()
+            time.sleep(3.4)
         if GPIO.input(24) == 1:
             print('RESET')
             set_relays_to_normal()
